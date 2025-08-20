@@ -3,23 +3,78 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>donsnet.net</title>
+  <title>donsnet.net — v3</title>
+  <meta name="description" content="Matrix‑style minimal landing page for donsnet.net" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Subtle grid overlay */
+    .grid-overlay {
+      background-image:
+        linear-gradient(rgba(34,255,119,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,255,119,0.06) 1px, transparent 1px);
+      background-size: 48px 48px, 48px 48px;
+      background-position: -1px -1px, -1px -1px;
+    }
+    /* Neon glow helper */
+    .glow-green { text-shadow: 0 0 8px #22ff77, 0 0 22px #22ff77; }
+    /* Card border */
+    .glass { background: rgba(8,16,10,0.6); border: 1px solid rgba(34,255,119,0.18); box-shadow: 0 10px 40px rgba(0,0,0,0.35); }
+    html, body { height: 100%; }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen flex items-center justify-center">
-  <div class="text-center p-8">
-    <h1 class="text-6xl md:text-7xl font-black tracking-tight bg-gradient-to-r from-teal-400 to-indigo-400 bg-clip-text text-transparent animate-pulse">
-      donsnet.net
-    </h1>
-    <p class="mt-6 text-lg text-slate-300 max-w-2xl mx-auto">
-      A sleek new landing page. If you can see this update, everything is wired up correctly between GitHub and Cloudflare Pages.
-    </p>
-    <div class="mt-10 flex flex-col items-center gap-4">
-      <a href="#" class="rounded-2xl px-8 py-4 bg-gradient-to-r from-teal-500 to-indigo-500 text-white font-semibold shadow-lg hover:opacity-90">
-        Get Started
-      </a>
-      <p class="text-sm text-slate-500">Auto-deployed on Cloudflare Pages 🚀</p>
-    </div>
-  </div>
+<body class="relative min-h-screen text-green-200 bg-gradient-to-b from-black via-[#020904] to-black overflow-hidden">
+  <!-- Matrix rain canvas -->
+  <canvas id="matrix" class="pointer-events-none fixed inset-0 -z-10"></canvas>
+  <!-- Subtle grid overlay -->
+  <div class="grid-overlay pointer-events-none fixed inset-0 -z-10"></div>
+
+  <main class="relative flex items-center justify-center min-h-screen p-6">
+    <section class="glass rounded-3xl max-w-3xl w-full p-8 md:p-12">
+      <h1 class="font-mono text-4xl md:text-6xl font-black tracking-tight text-green-300 glow-green">
+        donsnet<span class="text-green-500">.net</span>
+      </h1>
+      <p class="mt-4 text-sm md:text-base text-green-200/80 leading-relaxed">
+        <strong>v3 Matrix landing</strong> — If you see this page, your GitHub → Cloudflare Pages auto‑deploy is working.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a href="#" class="rounded-xl px-5 py-3 font-semibold bg-green-600/20 hover:bg-green-500/25 border border-green-400/30 text-green-200">No Action</a>
+        <span class="text-xs text-green-300/70">Purely for deployment testing</span>
+      </div>
+      <footer class="mt-10 text-xs text-green-300/60">© <span id="year"></span> donsnet.net</footer>
+    </section>
+  </main>
+
+  <script>
+    // Matrix rain — lightweight canvas effect
+    const c = document.getElementById('matrix');
+    const ctx = c.getContext('2d');
+    const setSize = () => { c.width = window.innerWidth; c.height = window.innerHeight; };
+    window.addEventListener('resize', setSize); setSize();
+    const chars = 'アイウエオカキクケコｱｲｳｴｵｶｷｸｹｺ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const fontSize = 14; // px
+    let columns = Math.floor(c.width / fontSize);
+    let drops = Array(columns).fill(1);
+
+    function draw(){
+      ctx.fillStyle = 'rgba(0, 10, 4, 0.08)';
+      ctx.fillRect(0,0,c.width,c.height);
+      ctx.fillStyle = '#22ff77';
+      ctx.font = fontSize + 'px monospace';
+      for (let i=0; i<drops.length; i++){
+        const text = chars[Math.floor(Math.random()*chars.length)];
+        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+        if (drops[i]*fontSize > c.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+      requestAnimationFrame(draw);
+    }
+    // Recompute columns on resize subtly
+    const resizeObserver = new ResizeObserver(() => { columns = Math.floor(c.width / fontSize); drops = Array(columns).fill(1); });
+    resizeObserver.observe(c);
+    draw();
+
+    // Year stamp
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
